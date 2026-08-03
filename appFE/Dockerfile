@@ -13,11 +13,11 @@ RUN npm run build --configuration=production
 # === ЕТАП 2: Роздача (Nginx) ===
 FROM nginx:alpine
 
-# Копіюємо зібрані файли з першого етапу в папку, з якої Nginx роздає статику
-# УВАГА: шлях /dist/inventory-frontend/browser актуальний для Angular 17+
+# Копіюємо збірку Angular
 COPY --from=build /app/dist/app-fe /usr/share/nginx/html
 
-# Відкриваємо 80 порт
-EXPOSE 80
+# ДОДАЄМО НАШ НОВИЙ КОНФІГ:
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

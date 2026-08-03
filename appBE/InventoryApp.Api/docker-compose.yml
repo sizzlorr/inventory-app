@@ -12,12 +12,17 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U myuser -d inventory_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   # Наш бекенд (.NET)
   api:
     build: .
     container_name: inventory-api
-    ports:
-      - "5000:8080"
+#    ports:
+#      - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - JwtSettings__Key=SuperSecretKeyForGunplaShopApiWhichMustBeAtLeast32CharactersLong
@@ -25,10 +30,11 @@ services:
       - ConnectionStrings__DefaultConnection=Host=db;Database=inventory_db;Username=myuser;Password=mypassword
       - AdminSettings__Username=admin
       - AdminSettings__Password=SuperSecureAdminPassword2026!
-    depends_on:
-        - db
     volumes:
       - uploads_volume:/app/wwwroot/images
+    depends_on:
+      db:
+        condition: service_healthy
 
   # Наш фронтенд (Angular + Nginx)
   frontend:
@@ -37,7 +43,7 @@ services:
     build: ../../appFE
     container_name: inventory-frontend
     ports:
-      - "4200:80" # Nginx всередині слухає 80-й порт, але ми прокидаємо його на звичний 4200
+      - "80:80"
     depends_on:
       - api # Запускати тільки після старту бекенду
 

@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ApiService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:5000/api';
+  private baseUrl = '/api';
 
   login(username: string, password: string): Observable<{ token: string }> {
     return this.http.post<{ token: string }>(

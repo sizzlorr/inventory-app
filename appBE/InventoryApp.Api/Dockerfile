@@ -3,24 +3,21 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Копіюємо файл конфігурації
+# Спочатку копіюємо тільки файл проекту, щоб кешувати залежності
 COPY ["InventoryApp.Api.csproj", "./"]
-RUN dotnet restore "InventoryApp.Api.csproj"
+RUN dotnet restore "./InventoryApp.Api.csproj"
 
-# Копіюємо весь інший код
+# Тепер копіюємо весь інший код і збираємо реліз
 COPY . .
-# Публікуємо проект
-RUN dotnet publish "InventoryApp.Api.csproj" -c Release -o /app/publish
+RUN dotnet publish "InventoryApp.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # === ЕТАП 2: Запуск (Run) ===
 # Беремо середовище виконання для .NET 10
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
-
 EXPOSE 8080
-ENV ASPNETCORE_HTTP_PORTS=8080
 
-# Копіюємо готовий результат з Етапу 1
+# Забираємо готові файли з етапу 'build'
 COPY --from=build /app/publish .
 
 # Запускаємо нашу .dll (переконайся, що ім'я збігається)
