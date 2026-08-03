@@ -1,0 +1,25 @@
+# macOS / IDE
+.DS_Store
+.idea/
+
+# Keep backup of former nested repo out of tracking
+appFE/.git.standalone.backup/
+
+# Frontend (Angular)
+appFE/node_modules/
+appFE/dist/
+appFE/.angular/cache/
+appFE/coverage/
+appFE/npm-debug.log*
+appFE/yarn-error.log*
+
+# Backend (.NET)
+appBE/**/bin/
+appBE/**/obj/
+appBE/**/.vs/
+appBE/**/TestResults/
+
+# Local runtime files
+appBE/InventoryApp.Api/wwwroot/images/
+appBE/InventoryApp.Api/inventory.db
+
