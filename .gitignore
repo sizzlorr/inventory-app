@@ -23,3 +23,12 @@ appBE/**/TestResults/
 appBE/InventoryApp.Api/wwwroot/images/
 appBE/InventoryApp.Api/inventory.db
 
+# Sensitive configuration files
+docker-compose.yml
+.env
+.env.local
+appBE/InventoryApp.Api/appsettings.*.local.json
+
+# User-specific settings
+*.DotSettings.user
+

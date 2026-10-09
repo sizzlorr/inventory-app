@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: inventory-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-myuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mypassword}
+      POSTGRES_DB: ${DB_NAME:-inventory_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-myuser} -d ${DB_NAME:-inventory_db}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  # Наш бекенд (.NET)
+  api:
+    build: .
+    container_name: inventory-api
+#    ports:
+#      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - JwtSettings__Key=${JWT_SECRET_KEY:-your-secret-key-here-minimum-32-characters}
+      # Передаємо рядок підключення до Postgres через змінні середовища!
+      - ConnectionStrings__DefaultConnection=Host=db;Database=${DB_NAME:-inventory_db};Username=${DB_USER:-myuser};Password=${DB_PASSWORD:-mypassword}
+      - AdminSettings__Username=${ADMIN_USERNAME:-admin}
+      - AdminSettings__Password=${ADMIN_PASSWORD:-ChangeMe!}
+    volumes:
+      - uploads_volume:/app/wwwroot/images
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Наш фронтенд (Angular + Nginx)
+  frontend:
+    # Вкажи відносний шлях до папки з фронтендом!
+    # (Якщо вони лежать поруч, це буде щось типу ../inventory-frontend)
+    build: ../../appFE
+    container_name: inventory-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api # Запускати тільки після старту бекенду
+
+volumes:
+  uploads_volume:
+  pgdata: # Новий том для Postgres замість db_volume
+

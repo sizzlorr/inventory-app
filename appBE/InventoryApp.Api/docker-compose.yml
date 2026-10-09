@@ -5,15 +5,15 @@ services:
     image: postgres:15-alpine
     container_name: inventory-db
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: inventory_db
+      POSTGRES_USER: ${DB_USER:-myuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mypassword}
+      POSTGRES_DB: ${DB_NAME:-inventory_db}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U myuser -d inventory_db" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-myuser} -d ${DB_NAME:-inventory_db}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -25,11 +25,11 @@ services:
 #      - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - JwtSettings__Key=SuperSecretKeyForGunplaShopApiWhichMustBeAtLeast32CharactersLong
+      - JwtSettings__Key=${JWT_SECRET_KEY:-your-secret-key-here-minimum-32-characters}
       # Передаємо рядок підключення до Postgres через змінні середовища!
-      - ConnectionStrings__DefaultConnection=Host=db;Database=inventory_db;Username=myuser;Password=mypassword
-      - AdminSettings__Username=admin
-      - AdminSettings__Password=SuperSecureAdminPassword2026!
+      - ConnectionStrings__DefaultConnection=Host=db;Database=${DB_NAME:-inventory_db};Username=${DB_USER:-myuser};Password=${DB_PASSWORD:-mypassword}
+      - AdminSettings__Username=${ADMIN_USERNAME:-admin}
+      - AdminSettings__Password=${ADMIN_PASSWORD:-ChangeMe!}
     volumes:
       - uploads_volume:/app/wwwroot/images
     depends_on:
