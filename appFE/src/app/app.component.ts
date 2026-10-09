@@ -42,7 +42,7 @@ import { ApiService } from './api.service';
       <h2>Каталог</h2>
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
         <div *ngFor="let item of items" style="border: 1px solid #ddd; padding: 10px; border-radius: 8px; text-align: center;">
-          <img [src]="item.imageUrl ? 'http://localhost:5000' + item.imageUrl : 'https://via.placeholder.com/150'"
+          <img [src]="item.imageUrl ? 'http://localhost' + item.imageUrl : 'https://via.placeholder.com/150'"
                style="max-width: 100%; height: 150px; object-fit: cover; border-radius: 4px;" />
           <h4 style="margin: 10px 0 5px 0;">{{ item.name }}</h4>
           <p style="color: #666; font-weight: bold; margin: 0;">{{ item.price }} UAH</p>

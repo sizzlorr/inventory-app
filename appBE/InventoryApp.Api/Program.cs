@@ -52,6 +52,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 builder.Services.AddScoped<IInventoryService, InventoryService>(); // Реєструємо наш сервіс у DI контейнері
+builder.Services.AddScoped<IAuthService, AuthService>();           // Реєструємо AuthService у DI контейнері
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -93,6 +94,31 @@ using (var scope = app.Services.CreateScope())
             new InventoryApp.Api.Models.Category { Name = "Figures" },
             new InventoryApp.Api.Models.Category { Name = "Accessories" },
             new InventoryApp.Api.Models.Category { Name = "Other" }
+        );
+        dbContext.SaveChanges();
+    }
+
+    // Seed users with hashed passwords if none exist
+    if (!dbContext.Users.Any())
+    {
+        var adminUsername = builder.Configuration["AdminSettings:Username"]
+            ?? throw new InvalidOperationException("AdminSettings:Username is not configured");
+        var adminPassword = builder.Configuration["AdminSettings:Password"]
+            ?? throw new InvalidOperationException("AdminSettings:Password is not configured");
+
+        dbContext.Users.AddRange(
+            new InventoryApp.Api.Models.User
+            {
+                Username = adminUsername,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
+                Role = "Admin"
+            },
+            new InventoryApp.Api.Models.User
+            {
+                Username = "user",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("user123"),
+                Role = "Customer"
+            }
         );
         dbContext.SaveChanges();
     }
